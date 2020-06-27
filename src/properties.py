@@ -43,7 +43,7 @@ class WaterThermoProperties(ThermoProperties):
     _owtp = OWTP()
 
     def __init__(self):
-        super(ThermoProperties, self).__init__()
+        super(WaterThermoProperties, self).__init__()
         self._x = float('nan')
 
     def GetVaporQuality(self):
