@@ -9,18 +9,54 @@ class testFunctions(UnitTest):
 
     def setUp(self):
         states = BuildStates(1,8,FluidState,Water)
-
-        self.Connectables = [Device(1, [states[0], states[7]]),
+        self.ConnectablesA = [Device(1, [states[0], states[7]]),
         Node(2, states[0:2]), Device(3, states[1:3]),
         Node(4, states[2:4]), Device(5, states[3:5]),
         Node(6, states[4:6]), Device(7, states[5:7]),
         Node(8, states[-2:])
         ]
-        self.States = states
+        self.StatesA = states
+        self.ConnMatrixA = array([
+        [1,0,0,0,0,0,0,1],
+        [1,1,0,0,0,0,0,0],
+        [0,1,1,0,0,0,0,0],
+        [0,0,1,1,0,0,0,0],
+        [0,0,0,1,1,0,0,0],
+        [0,0,0,0,1,1,0,0],
+        [0,0,0,0,0,1,1,0],
+        [0,0,0,0,0,0,1,1]])
+
+        states = BuildStates(1,17,FluidState,Water)
+        self.ConnectablesB = [
+        Device(1, [states[0], states[10], states[15]]),
+        Device(2, [states[1], states[11], states[14]]),
+        Node(3, states[0:3]),
+        Device(4, [states[2], states[3], states[13], states[14]]),
+        Node(5, states[3:6]),
+        Device(6, [states[4], states[6]]),
+        Device(7, [states[5], states[7], states[16]]),
+        Device(8, [states[12], states[13], states[15], states[16]]),
+        Node(9, states[6:9]),
+        Device(10, [states[8], states[9], states[12]]),
+        Node(11, states[9:12])
+        ]
+        self.SatesB = states
+        self.ConnMatrixB = array([
+        [1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0],
+        [0,1,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0],
+        [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,1,1,0,0,0,0,0,0,0,0,0,1,1,0,0],
+        [0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,1],
+        [0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1],
+        [0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0]])
 
     def test_GetEquipment_ReturnsOnlyDevices(self):
-        expEquip = self.Connectables[0:7:2]
-        testEquip = GetEquipment(self.Connectables)
+        expEquip = self.ConnectablesA[0:7:2]
+        testEquip = GetEquipment(self.ConnectablesA)
 
         #if both are the same length & all of the expected
         #equipment are found in the results, then the results
@@ -30,8 +66,8 @@ class testFunctions(UnitTest):
             self.assertTrue(curExpEquip in testEquip)
 
     def test_GetUniqueStates_ReturnsOnlyUniqueStates(self):
-        expUniqueStates = self.States
-        testStates = GetUniqueStates(self.Connectables)
+        expUniqueStates = self.StatesA
+        testStates = GetUniqueStates(self.ConnectablesA)
 
         #if both are the same length & all of the expected
         #states are found in the results, then the results
@@ -41,8 +77,8 @@ class testFunctions(UnitTest):
             self.assertTrue(curExpState in testStates)
 
     def test_GetUniqueStateIds_ReturnsCorrectIds(self):
-        expUniqueIds = [state.Id for state in self.States]
-        testIds = GetUniqueStateIds(self.Connectables)
+        expUniqueIds = [state.Id for state in self.StatesA]
+        testIds = GetUniqueStateIds(self.ConnectablesA)
 
         #if both are the same length & all of the expected
         #IDs are found in the results, then the results
@@ -52,16 +88,8 @@ class testFunctions(UnitTest):
             self.assertTrue(curExpId in testIds)
 
     def test_BuildConnectionMatrix_CorrectlyBuildsMatrix(self):
-        expMatrix = array([
-        [1,0,0,0,0,0,0,1],
-        [1,1,0,0,0,0,0,0],
-        [0,1,1,0,0,0,0,0],
-        [0,0,1,1,0,0,0,0],
-        [0,0,0,1,1,0,0,0],
-        [0,0,0,0,1,1,0,0],
-        [0,0,0,0,0,1,1,0],
-        [0,0,0,0,0,0,1,1]])
-        testMat = BuildConnectionMatrix(self.Connectables)
+        expMatrix = self.ConnMatrixA
+        testMat = BuildConnectionMatrix(self.ConnectablesA)
 
         #the matrices should have the same dimensions
         expDims = expMatrix.shape
@@ -74,33 +102,10 @@ class testFunctions(UnitTest):
                 self.assertTrue(expMatrix[m,n] == testMat[m,n])
 
     def test_BuildConnectionMatrix_CorrectlyBuildsComplexMatrix(self):
-        states = BuildStates(1,17,FluidState,Water)
-        connectables = [Device(1, [states[0], states[10], states[15]]),
-        Device(2, [states[1], states[11], states[14]]),
-        Node(3, states[0:3]),
-        Device(4, [states[2], states[3], states[13], states[14]]),
-        Node(5, states[3:6]),
-        Device(6, [states[4], states[6]]),
-        Device(7, [states[5], states[7], states[16]]),
-        Device(8, [states[12], states[13], states[15], states[16]]),
-        Node(9, states[6:9]),
-        Device(10, [states[8], states[9], states[12]]),
-        Node(11, states[9:12])
-        ]
-        expMatrix = array([
-        [1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0],
-        [0,1,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0],
-        [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,1,1,0,0,0,0,0,0,0,0,0,1,1,0,0],
-        [0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,1],
-        [0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1],
-        [0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0]])
+        connectables = self.ConnectablesB
+        expMatrix = self.ConnMatrixB
         testMat = BuildConnectionMatrix(connectables)
-
+        
         #the matrices should have the same dimensions
         expDims = expMatrix.shape
         testDims = testMat.shape
@@ -132,7 +137,7 @@ class testFunctions(UnitTest):
         (8, tuple([stateData[7]])),
         ]
         expDict = dict(expDictData)
-        uniqueIds = GetUniqueStateIds(self.Connectables)
+        uniqueIds = GetUniqueStateIds(self.ConnectablesA)
         testDict = BuildStateDataDict(stateData, uniqueIds)
         #both dictionaries should have the same number of entries
         self.assertTrue(len(expDict) == len(testDict))
