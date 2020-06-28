@@ -1,2 +1,2 @@
 . test/Scripts/activate
-python -m unittest -v
+python -m unittest -v test.UnitTesting.testsystems

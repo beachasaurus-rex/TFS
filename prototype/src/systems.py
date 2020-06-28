@@ -11,6 +11,43 @@ class System:
         self.Equipment = GetEquipment(connectables)
         self.UniqueStates = GetUniqueStates(connectables)
 
+class StateDataPoint:
+    def __init__(self, stateId, val, independentVar):
+        self.StateId = stateId
+        self.Value = val
+        self.IndependentVariable = independentVar
+
+    def __eq__(self, other):
+        if isinstance(other, StateDataPoint):
+            sameIds = self.StateId == other.StateId
+            sameVals = self.Value == other.Value
+            sameVars = self.IndependentVariable == other.IndependentVariable
+            return sameIds and sameVals and sameVars
+
+    def __ne__(self, other):
+        return not(self.__eq__(other))
+
+def BuildStateDataDict(stateData, uniqueStateIds):
+    #Builds a dictionary that holds input data for each
+    #state.
+    #Key = the state's ID
+    #Value = a tuple of state data points
+    
+    numUniqueIds = len(uniqueStateIds)
+    dictData = []
+    for i in range(0,numUniqueIds):
+        refId = uniqueStateIds[i]
+        numPoints = len(stateData)
+        bucket = []
+        for j in range(0,numPoints):
+            if refId == stateData[j].StateId:
+                bucket.append(stateData[j])
+
+        imBucket = tuple(bucket)
+        dictData.append((refId, imBucket))
+
+    return dict(dictData)
+
 def GetEquipment(connectables):
     numConnectables = len(connectables)
 

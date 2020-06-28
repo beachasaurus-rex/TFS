@@ -2,6 +2,7 @@ from numpy import *
 
 from test.testbases import *
 
+from src.fluids import *
 from src.systems import *
 
 class testFunctions(UnitTest):
@@ -99,7 +100,7 @@ class testFunctions(UnitTest):
         [0,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0]])
         testMat = BuildConnectionMatrix(connectables)
-        
+
         #the matrices should have the same dimensions
         expDims = expMatrix.shape
         testDims = testMat.shape
@@ -109,3 +110,38 @@ class testFunctions(UnitTest):
             for n in range(0,expDims[1]):
                 #the matrices should have the same elements
                 self.assertTrue(expMatrix[m,n] == testMat[m,n])
+
+    def test_BuildStateDataDict_CorrectlyBuildsDictionary(self):
+        stateData = [StateDataPoint(1,500,IndependentVariable.Temperature),
+        StateDataPoint(3,500,IndependentVariable.Temperature),
+        StateDataPoint(5,500,IndependentVariable.Temperature),
+        StateDataPoint(7,500,IndependentVariable.Temperature),
+        StateDataPoint(2,500,IndependentVariable.Temperature),
+        StateDataPoint(4,500,IndependentVariable.Temperature),
+        StateDataPoint(6,500,IndependentVariable.Temperature),
+        StateDataPoint(8,500,IndependentVariable.Temperature),
+        StateDataPoint(1,5,IndependentVariable.Pressure)
+        ]
+        expDictData = [(1, (stateData[0], stateData[8])),
+        (2, tuple([stateData[4]])),
+        (3, tuple([stateData[1]])),
+        (4, tuple([stateData[5]])),
+        (5, tuple([stateData[2]])),
+        (6, tuple([stateData[6]])),
+        (7, tuple([stateData[3]])),
+        (8, tuple([stateData[7]])),
+        ]
+        expDict = dict(expDictData)
+        uniqueIds = GetUniqueStateIds(self.Connectables)
+        testDict = BuildStateDataDict(stateData, uniqueIds)
+        #both dictionaries should have the same number of entries
+        self.assertTrue(len(expDict) == len(testDict))
+        for expKey, expVal in expDictData:
+            #all expected keys should be found in the test dict
+            self.assertTrue(expKey in testDict)
+            testVal = testDict[expKey]
+            #both tuples should have the same number of entries
+            self.assertTrue(len(expVal) == len(testVal))
+            for i in range(0,len(expVal)):
+                #all tuple entries should be the same
+                self.assertTrue(expVal[i] == testVal[i])
