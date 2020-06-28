@@ -50,10 +50,16 @@ def GetUniqueStateIds(connectables):
     return list(set(stateIds))
 
 def BuildConnectionMatrix(connectables):
+    #Rectangular matrix meant to show which devices hold
+    #specific states, and it is used to traverse the system.
+    #A row indicates which states a device contains.
+    #A column indicates which devices a state is a member.
+
+
     m = len(connectables)
     uniqueStateIds = GetUniqueStateIds(connectables)
     n = len(uniqueStateIds)
-    
+
     #build connection matrix by identifying which states are connected to
     #connectables
     conMat = zeros((m,n))
